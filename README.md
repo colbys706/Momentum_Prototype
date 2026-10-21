@@ -1,5 +1,6 @@
 # Momentum
 
+This will be the repository we'll use for our team project in IS401.
 Less scrolling, more living. A phone-first web app that helps college students in Provo build better phone habits and replace scrolling with real, in-person activities.
 
 Plain **HTML + CSS + JavaScript**. No frameworks, no build step.
@@ -23,66 +24,23 @@ momentum/
         ├── lessons-content.js ← lesson text (edit lessons here)
         ├── pages/*.js      ← one file per page
         └── vendor/         ← Supabase's library (don't edit)
-```
 
-## Run it
+App Summary: Young, isolated college students in Provo spend too much time on their phones rather than forming real connections and do not have effective resources to help them develop better habits and find long-term satisfaction. This increased amount of screen time frequently leads them to feeling alone, worsens their mental health, and makes it more difficult to form real-life social support networks during challenging college years. They need to find meaningful ways to spend their free time, especially in the evenings, to avoid doom scrolling. This website should motivate them to have less desire to unintentionally waste time throughout down time each day. They will be able to RSVP to various activities, post your own, communicate with others who are attending events in Provo, learn more about the effects of social media, and create and apply realistic goals or habits.
 
-- **On a laptop:** open `site/index.html` in Chrome. Done.
-- **On a phone, or to share with the team:** host it (see below). Android won't run local multi-file sites, but a hosted link works everywhere.
+Tech Stack: We decided to use HTML/CSS/JavaScript for our front end. Our hosting service is GitHub and as our back end database service we're using Supabase. We decided to go this route for several reasons. The main reason is because these languages and services are the ones we're most familiar with so it will make editing easier. Beyond that, we want to avoid having to pay for AI services and it's very easy to use up free tokens quickly, but we did use Claude to help put it all together with the resources we gave it.
 
-## The vertical slice: Post an activity → Supabase
+How to get it running (starting with a copy of this repo’s code):
 
-1. Set up the database: follow `database/ERD-GUIDE.md` step 1 (run `schema.sql`).
-2. In Supabase, open **Project Settings → API** (or "API Keys"). Copy the **Project URL** and the **anon / publishable** key.
-3. Paste both into `site/js/config.js`.
-4. Reload. The Post-an-activity page now says **"Saved to: Supabase"**.
+Create a Github repo with the code -Take these files, and upload them onto a fresh git hub repo.
+Create an ERD -There is a schema file that you can use to create the supabase tables set up. Open a new project on supabase Go to the query tool, and paste in the schema query (found on github → /database/schema). Run the query. -If you want to view the ERD on Lucid chart, do the following. Open a lucid document Select file → import → ERD → PostgreSQL Copy the presented query, and run it in a new query back on the supabase project. Copy the result as a CSV. Return to Lucid chart. Click next, paste all. Run it, and now you have a field of imported tables. Place all the loaded tables onto the document, and relationships will form automatically.
+In the Github repo, you need to connect your supabase. -Open the config.js on Github’ -Go to the supabase project overview → copy, towards the top. -Copy ‘Project URL’ → paste it into the congif.js supabase url. -Copy ‘Publishable key’ → paste it into the config.js supabase anon key -Save those changes
+Publish your repo on Github as a page, and voilà!
+Verifying the vertical slice:
 
-**Demo script:**
-1. Post an activity on your phone.
-2. Open Supabase → Table Editor → `activities`. The row is there.
-3. A teammate opens Activities on *their* phone and sees it.
-4. Show that `activity_addresses` has the exact address, but the public feed can't read it (PL-2, enforced by the database).
-
-> ⚠️ Only the **anon/publishable** key goes in `config.js`. Never the `service_role`/secret key.
-
-## What's saved where (right now)
-
-| Feature | Saved in |
-|---|---|
-| Activities (list, details, posting) | **Supabase** once keys are in `config.js`, otherwise this browser |
-| Everything else: habits, streaks, points, RSVPs, +1s, posts, friends, messages, lessons, settings | This browser (`localStorage`) |
-
-Every feature goes through `js/store.js`, shaped like the tables in `schema.sql`, so each one can move to Supabase in a later slice without touching the pages. **Next slices, in a sensible order:** login (Supabase Auth) → RSVPs → habits/points → posts → messages.
-
-Settings → **Reset demo data** restores the demo habits, friends, RSVPs, and messages in your browser. The demo activity dates are set relative to the day you first open the site, so reset if they've drifted into the past.
-
-## Host it free (GitHub Pages)
-
-1. Create a GitHub repo and upload the **contents of `site/`** (so `index.html` is at the top level).
-2. Repo → **Settings → Pages** → Source: *Deploy from a branch* → `main` / root → Save.
-3. In about a minute you get a link like `https://yourname.github.io/momentum/`. It works on any phone.
-
-(Netlify works too: drag the `site` folder onto app.netlify.com/drop.)
-
-## Feedback items → where they live
-
-| Feedback | Where |
-|---|---|
-| Title goes home; profile always in nav | `ui.js` (header + nav, shared by every page) |
-| Always-visible nav: Home, Activities, Calendar, Lessons, Social (+ profile avatar) | `ui.js`: bottom bar on phones, sidebar on desktop |
-| "Share a post" on profile; "Post an activity" on Home | `profile.js`, `home.js` |
-| Message host / message poster (activity chats skip the request step) | `activity.js`, `social.js`, `ui.js` (messages panel) |
-| +1: friend with account (must accept, doesn't hold a spot) or guest first name | `activity.js` commit pop-up, `store.js` `commit()` |
-| Who's going: friends = full profile, others = first name, or hidden by setting | `activity.js`, Settings → "On Who's going lists" |
-| One points ledger for habits, lessons, RSVPs, attendance, posts; updates instantly, even across tabs | `store.js` (`addPoints`, `stats`, `streak`), `streak.html` |
-| Streak front and center → stats page | `home.js`, `streak.js` |
-| Commit pop-up says commitment counts; after commit → calendar + add-to-calendar | `activity.js`, `calendar.js`, `ui.js` (Google / Apple / Outlook) |
-| Cancel: 2 per month, not within 24 hours, loses the RSVP points | `store.js` `cancel()`; the database enforces it too |
-| Lessons as a Duolingo-style path; dedicated lesson pages; 30-word goal → daily habit | `lessons.js`, `lesson.js`, `lessons-content.js` |
-| From Momentum: Encourage, activity-linked posts, "met at", lesson stat cards, frosted look | `social.js`, `friends.js`, `lesson.js`, `styles.css` |
-
-## Before you present
-
-- **Lesson stat numbers are placeholders** and are labeled that way. Find real sources.
-- **The PRD says RSVPs can't be cancelled (PL-10)**, but the feedback added 2 cancellations a month. Update the PRD to match.
-- **The PRD says posts show oldest first (SN-2)**; the app shows newest first, per the sprint prompt. Update one of them.
+Open the live site link and enter any email and any text as a password. The log in step is not live right now.
+From the home page, click the “Post an Activity” button
+Fill in the required information including “Title,” “Activity Type,” “Date,” start and end time and address.
+Select “Public” under activity visibility
+Verify the information, then click “Post activity”. Doing this will log the activity in the Supabase “activities” table (request to backend, which grabs data and responds back into frontend).
+Open the link in a private web browser such as Chrome Incognito and log in. Again, the email and password are meaningless. Do not try to create a real account or use a real username or password.
+Click on “Activities” and the activity you created should appear on the list! This occurs because the website pulls all the activities from the activities table in Supabase and displays them on screen.
